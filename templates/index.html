@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>媒体管理中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .header-actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .btn-header {
+            padding: 8px 20px;
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 20px;
+            background: transparent;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-header:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: white;
+        }
+        
+        .btn-login {
+            background: white;
+            color: #667eea;
+            border: none;
+        }
+        
+        .btn-login:hover {
+            background: rgba(255,255,255,0.9);
+        }
+        
+        .read-only-badge {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .main-content {
+            display: flex;
+            min-height: 700px;
+        }
+        
+        /* 左侧分组栏 */
+        .sidebar {
+            width: 280px;
+            background: #f8f9fa;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .sidebar h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-small:hover {
+            background: #764ba2;
+        }
+        
+        .group-list {
+            margin-top: 10px;
+        }
+        
+        .group-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            border: 2px solid transparent;
+        }
+        
+        .group-item:hover {
+            background: #eef1ff;
+            transform: translateX(5px);
+        }
+        
+        .group-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .group-icon {
+            font-size: 20px;
+            margin-right: 12px;
+        }
+        
+        .group-name {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .group-delete {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            font-size: 12px;
+        }
+        
+        .group-item:hover .group-delete,
+        .group-item.active .group-delete {
+            opacity: 1;
+        }
+        
+        .group-delete:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        .no-groups {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+            font-size: 14px;
+        }
+        
+        /* 右侧内容区 */
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .content-title {
+            font-size: 24px;
+            color: #333;
+        }
+        
+        .content-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* 上传区域 */
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f8f9ff;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area:hover {
+            background: #eef1ff;
+            border-color: #764ba2;
+        }
+        
+        .upload-area.dragover {
+            background: #e0e7ff;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .upload-hint {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        /* 文件列表 */
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .file-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .file-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .file-preview {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+        
+        .file-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .file-info {
+            padding: 12px 15px;
+        }
+        
+        .file-name {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .file-meta {
+            font-size: 12px;
+            color: #999;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 8px;
+            padding: 0 15px 15px;
+        }
+        
+        .btn-icon {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-view:hover {
+            background: #764ba2;
+        }
+        
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: #ee5a5a;
+        }
+        
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal-header {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .btn-secondary {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: #f5f5f5;
+        }
+        
+        /* 预览模态框 */
+        .preview-modal .modal-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            padding: 0;
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .preview-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 1001;
+        }
+        
+        .preview-content {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+        
+        .preview-content video {
+            max-width: 100%;
+            max-height: 80vh;
+        }
+        
+        .preview-download {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .preview-download:hover {
+            background: #218838;
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        /* 消息提示 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.success {
+            background: #4caf50;
+        }
+        
+        .toast.error {
+            background: #f44336;
+        }
+        
+        /* 进度条 */
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 8px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📸 媒体管理中心 <span id="readOnlyBadge" class="read-only-badge" style="display: none;">只读模式</span></h1>
+            <p class="header-subtitle">管理您的照片和视频</p>
+            <div class="header-actions">
+                <div id="userInfo" style="display: none;">
+                    <div class="user-info">
+                        <span>👤</span>
+                        <span id="username">xkz666</span>
+                    </div>
+                </div>
+                <button id="loginBtn" class="btn-header btn-login" onclick="window.location.href='/login'">🔐 登录</button>
+                <button id="logoutBtn" class="btn-header" style="display: none;" onclick="logout()">🚪 退出</button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- 左侧分组栏 -->
+            <div class="sidebar">
+                <h2>
+                    📁 分组
+                    <button class="btn-small" id="createGroupBtn" onclick="showCreateGroupModal()" style="display: none;">+ 新建</button>
+                </h2>
+                <div class="group-list" id="groupList">
+                    <div class="no-groups">加载中...</div>
+                </div>
+            </div>
+            
+            <!-- 右侧内容区 -->
+            <div class="content">
+                <div class="content-header">
+                    <h2 class="content-title" id="currentGroupTitle">请选择一个分组</h2>
+                    <div class="content-actions">
+                        <button class="btn-primary" id="uploadBtn" disabled>
+                            📤 上传文件
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 上传区域 -->
+                <div class="upload-area" id="uploadArea" style="display: none;">
+                    <div class="upload-icon">☁️</div>
+                    <div class="upload-text">点击或拖拽文件到此处上传</div>
+                    <div class="upload-hint">支持图片 (JPG, PNG, GIF) 和视频 (MP4, AVI, MOV, WEBM)</div>
+                    <input type="file" id="fileInput" multiple accept="image/*,video/*">
+                    <div class="progress-container" id="progressContainer">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-text" id="progressText">准备上传...</div>
+                    </div>
+                </div>
+                
+                <!-- 文件网格 -->
+                <div class="file-grid" id="fileGrid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📂</div>
+                        <p>请选择或创建一个分组开始管理您的媒体文件</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 创建分组模态框 -->
+    <div class="modal" id="createGroupModal">
+        <div class="modal-content">
+            <h3 class="modal-header">📁 创建新分组</h3>
+            <div class="form-group">
+                <label>分组名称</label>
+                <input type="text" id="groupNameInput" placeholder="例如：旅行照片、工作资料..." maxlength="50">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('createGroupModal')">取消</button>
+                <button class="btn-primary" onclick="createGroup()">创建</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 文件预览模态框 -->
+    <div class="modal preview-modal" id="previewModal">
+        <div class="preview-close" onclick="closePreview()">✕</div>
+        <div id="previewContainer" style="position: relative; display: flex; flex-direction: column; align-items: center;">
+            <div id="previewContent"></div>
+            <button class="preview-download" id="previewDownloadBtn" onclick="downloadCurrentPreviewFile()">
+                ⬇️ 下载文件
+            </button>
+        </div>
+    </div>
+    
+    <!-- Toast 消息 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let currentGroup = null;
+        let groups = [];
+        let isLoggedIn = false;
+        let currentUser = null;
+        let currentPreviewFile = null; // 存储当前预览的文件名
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkLoginStatus();
+            loadGroups();
+            setupEventListeners();
+        });
+        
+        // 检查登录状态
+        async function checkLoginStatus() {
+            try {
+                const response = await fetch('/api/auth/status');
+                const data = await response.json();
+                
+                if (data.success) {
+                    isLoggedIn = data.isLoggedIn;
+                    currentUser = data.username;
+                    updateUIForAuth();
+                }
+            } catch (error) {
+                console.error('检查登录状态失败:', error);
+            }
+        }
+        
+        // 根据登录状态更新UI
+        function updateUIForAuth() {
+            const loginBtn = document.getElementById('loginBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const userInfo = document.getElementById('userInfo');
+            const createGroupBtn = document.getElementById('createGroupBtn');
+            const uploadArea = document.getElementById('uploadArea');
+            const readOnlyBadge = document.getElementById('readOnlyBadge');
+            const uploadBtn = document.getElementById('uploadBtn');
+            
+            if (isLoggedIn) {
+                // 已登录状态
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'block';
+                userInfo.style.display = 'block';
+                createGroupBtn.style.display = 'block';
+                readOnlyBadge.style.display = 'none';
+                document.getElementById('username').textContent = currentUser;
+            } else {
+                // 未登录状态
+                loginBtn.style.display = 'block';
+                logoutBtn.style.display = 'none';
+                userInfo.style.display = 'none';
+                createGroupBtn.style.display = 'none';
+                readOnlyBadge.style.display = 'inline-block';
+                uploadArea.style.display = 'none';
+                uploadBtn.style.display = 'none';
+            }
+        }
+        
+        // 退出登录
+        async function logout() {
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    isLoggedIn = false;
+                    currentUser = null;
+                    currentGroup = null;
+                    
+                    // 重置UI
+                    document.getElementById('currentGroupTitle').textContent = '请选择一个分组';
+                    document.getElementById('fileGrid').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📂</div>
+                            <p>请选择或创建一个分组开始管理您的媒体文件</p>
+                        </div>
+                    `;
+                    
+                    updateUIForAuth();
+                    loadGroups();
+                    showToast('已退出登录', 'success');
+                }
+            } catch (error) {
+                showToast('退出失败', 'error');
+            }
+        }
+        
+        // 设置事件监听
+        function setupEventListeners() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                handleFiles(e.dataTransfer.files);
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+            
+            // 回车键创建分组
+            document.getElementById('groupNameInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') createGroup();
+            });
+        }
+        
+        // 加载分组列表
+        async function loadGroups() {
+            try {
+                const response = await fetch('/api/groups');
+                const data = await response.json();
+                
+                if (data.success) {
+                    groups = data.groups;
+                    renderGroupList();
+                }
+            } catch (error) {
+                showToast('加载分组失败', 'error');
+            }
+        }
+        
+        // 渲染分组列表
+        function renderGroupList() {
+            const groupList = document.getElementById('groupList');
+            
+            if (groups.length === 0) {
+                groupList.innerHTML = '<div class="no-groups">暂无分组<br>点击上方"新建"按钮创建</div>';
+                return;
+            }
+            
+            groupList.innerHTML = groups.map(group => {
+                // 只有登录用户才能看到删除按钮
+                const deleteBtn = isLoggedIn 
+                    ? `<span class="group-delete" onclick="event.stopPropagation(); deleteGroup('${group.name}')">删除</span>`
+                    : '';
+                    
+                return `
+                    <div class="group-item ${currentGroup === group.name ? 'active' : ''}" 
+                         onclick="selectGroup('${group.name}')">
+                        <span class="group-icon">📁</span>
+                        <span class="group-name">${group.name}</span>
+                        ${deleteBtn}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 选择分组
+        async function selectGroup(groupName) {
+            currentGroup = groupName;
+            renderGroupList();
+            
+            document.getElementById('currentGroupTitle').textContent = `📁 ${groupName}`;
+            
+            // 只有登录用户才能看到上传区域和按钮
+            if (isLoggedIn) {
+                document.getElementById('uploadArea').style.display = 'block';
+                document.getElementById('uploadBtn').style.display = 'block';
+                document.getElementById('uploadBtn').disabled = false;
+            } else {
+                document.getElementById('uploadArea').style.display = 'none';
+                document.getElementById('uploadBtn').style.display = 'none';
+            }
+            
+            await loadFiles(groupName);
+        }
+        
+        // 加载分组内的文件
+        async function loadFiles(groupName) {
+            try {
+                const response = await fetch(`/api/files/${groupName}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderFileGrid(data.files);
+                }
+            } catch (error) {
+                showToast('加载文件失败', 'error');
+            }
+        }
+        
+        // 渲染文件网格
+        function renderFileGrid(files) {
+            const fileGrid = document.getElementById('fileGrid');
+            
+            if (files.length === 0) {
+                const hintText = isLoggedIn 
+                    ? '<p style="font-size: 14px; margin-top: 10px;">拖拽或点击上方区域上传</p>'
+                    : '<p style="font-size: 14px; margin-top: 10px;">该分组为空，需要登录后才能上传文件</p>';
+                    
+                fileGrid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-state-icon">📭</div>
+                        <p>该分组还没有文件</p>
+                        ${hintText}
+                    </div>
+                `;
+                return;
+            }
+            
+            fileGrid.innerHTML = files.map(file => {
+                const isImage = file.type === 'image';
+                const isVideo = file.type === 'video';
+                
+                let previewContent;
+                if (isImage) {
+                    previewContent = `<img src="${file.url}" class="file-preview" alt="${file.name}">`;
+                } else if (isVideo) {
+                    previewContent = `
+                        <div class="file-preview">
+                            <video muted>
+                                <source src="${file.url}" type="video/${file.name.split('.').pop()}">
+                            </video>
+                            <span style="position: absolute; font-size: 32px;">▶️</span>
+                        </div>
+                    `;
+                } else {
+                    previewContent = `<div class="file-preview">📄</div>`;
+                }
+                
+                // 根据登录状态显示不同的操作按钮（所有用户都可以下载）
+                let actionsHtml;
+                if (isLoggedIn) {
+                    actionsHtml = `<div class="file-actions">
+                            <button class="btn-icon btn-view" onclick="event.stopPropagation(); previewFile('${file.url}', '${file.type}')">👁️ 查看</button>
+                            <button class="btn-icon" style="background: #28a745; color: white;" onclick="event.stopPropagation(); downloadFile('${file.name}')">⬇️ 下载</button>
+                            <button class="btn-icon btn-delete" onclick="event.stopPropagation(); deleteFile('${file.name}')">🗑️ 删除</button>
+                       </div>`;
+                } else {
+                    actionsHtml = `<div class="file-actions">
+                            <button class="btn-icon btn-view" onclick="event.stopPropagation(); previewFile('${file.url}', '${file.type}')">👁️ 查看</button>
+                            <button class="btn-icon" style="background: #28a745; color: white;" onclick="event.stopPropagation(); downloadFile('${file.name}')">⬇️ 下载</button>
+                       </div>`;
+                }
+                
+                return `
+                    <div class="file-card" onclick="previewFile('${file.url}', '${file.type}')">
+                        ${previewContent}
+                        <div class="file-info">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-meta">
+                                <span>${formatFileSize(file.size)}</span>
+                                <span>${file.modified.split(' ')[0]}</span>
+                            </div>
+                        </div>
+                        ${actionsHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 处理文件上传
+        async function handleFiles(files) {
+            if (!isLoggedIn) {
+                showToast('请先登录后再上传文件', 'error');
+                return;
+            }
+            
+            if (!currentGroup) {
+                showToast('请先选择一个分组', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            Array.from(files).forEach(file => {
+                formData.append('files', file);
+            });
+            
+            const progressContainer = document.getElementById('progressContainer');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '30%';
+            progressText.textContent = '正在上传...';
+            
+            try {
+                const response = await fetch(`/api/upload/${currentGroup}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                progressFill.style.width = '100%';
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    await loadFiles(currentGroup);
+                } else {
+                    showToast(data.error || '上传失败', 'error');
+                }
+            } catch (error) {
+                showToast('上传失败', 'error');
+            } finally {
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    progressFill.style.width = '0%';
+                }, 1000);
+                document.getElementById('fileInput').value = '';
+            }
+        }
+        
+        // 创建分组
+        async function createGroup() {
+            const input = document.getElementById('groupNameInput');
+            const name = input.value.trim();
+            
+            if (!name) {
+                showToast('请输入分组名称', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/groups', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('分组创建成功', 'success');
+                    input.value = '';
+                    closeModal('createGroupModal');
+                    await loadGroups();
+                    selectGroup(name);
+                } else {
+                    showToast(data.error || '创建失败', 'error');
+                }
+            } catch (error) {
+                showToast('创建失败', 'error');
+            }
+        }
+        
+        // 删除分组
+        async function deleteGroup(groupName) {
+            if (!confirm(`确定要删除分组 "${groupName}" 吗？\n该分组内的所有文件也将被删除。`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/groups/${groupName}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    if (currentGroup === groupName) {
+                        currentGroup = null;
+                        document.getElementById('currentGroupTitle').textContent = '请选择一个分组';
+                        document.getElementById('uploadArea').style.display = 'none';
+                        document.getElementById('uploadBtn').disabled = true;
+                        document.getElementById('fileGrid').innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📂</div>
+                                <p>请选择或创建一个分组开始管理您的媒体文件</p>
+                            </div>
+                        `;
+                    }
+                    await loadGroups();
+                } else {
+                    showToast(data.error || '删除失败', 'error');
+                }
+            } catch (error) {
+                showToast('删除失败', 'error');
+            }
+        }
+        
+        // 下载文件
+        function downloadFile(filename) {
+            if (!currentGroup) {
+                showToast('请先选择一个分组', 'error');
+                return;
+            }
+            
+            const downloadUrl = `/api/download/${currentGroup}/${filename}`;
+            
+            // 创建一个临时的 a 标签来触发下载
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = filename;  // 浏览器会使用服务器返回的 download_name
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast('开始下载...', 'success');
+        }
+        
+        // 删除文件
+        async function deleteFile(filename) {
+            if (!confirm(`确定要删除 "${filename}" 吗？`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/files/${currentGroup}/${filename}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    await loadFiles(currentGroup);
+                } else {
+                    showToast(data.error || '删除失败', 'error');
+                }
+            } catch (error) {
+                showToast('删除失败', 'error');
+            }
+        }
+        
+        // 预览文件
+        function previewFile(url, type) {
+            const modal = document.getElementById('previewModal');
+            const content = document.getElementById('previewContent');
+            
+            // 从 URL 中提取文件名
+            const urlParts = url.split('/');
+            currentPreviewFile = urlParts[urlParts.length - 1];
+            
+            if (type === 'image') {
+                content.innerHTML = `<img src="${url}" class="preview-content">`;
+            } else if (type === 'video') {
+                content.innerHTML = `
+                    <video class="preview-content" controls autoplay>
+                        <source src="${url}" type="video/${url.split('.').pop()}">
+                    </video>
+                `;
+            }
+            
+            modal.classList.add('active');
+        }
+        
+        // 下载当前预览的文件
+        function downloadCurrentPreviewFile() {
+            if (currentPreviewFile && currentGroup) {
+                downloadFile(currentPreviewFile);
+            }
+        }
+        
+        // 关闭预览
+        function closePreview() {
+            const modal = document.getElementById('previewModal');
+            const content = document.getElementById('previewContent');
+            modal.classList.remove('active');
+            content.innerHTML = '';
+            currentPreviewFile = null; // 清除当前预览文件
+        }
+        
+        // 显示/关闭模态框
+        function showCreateGroupModal() {
+            document.getElementById('createGroupModal').classList.add('active');
+            document.getElementById('groupNameInput').focus();
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+        
+        // 显示 Toast 消息
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        // 点击模态框背景关闭
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    if (modal.id === 'previewModal') {
+                        document.getElementById('previewContent').innerHTML = '';
+                    }
+                }
+            });
+        });
+        
+        // ESC 键关闭模态框
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+                document.getElementById('previewContent').innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>
